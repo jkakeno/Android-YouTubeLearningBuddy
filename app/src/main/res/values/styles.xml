@@ -1,0 +1,26 @@
+<resources>
+
+<!--    &lt;!&ndash; Base application theme. &ndash;&gt;
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        &lt;!&ndash; Customize your theme here. &ndash;&gt;
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>-->
+
+    <!-- Custom Theme. -->
+    <!--Tutorial https://www.youtube.com/watch?v=ZIzHfJKJ69A-->
+    <style name="AppTheme" parent="Theme.AppCompat">
+        <item name="android:actionBarStyle">@style/CustomActionBar</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+    </style>
+
+    <style name="CustomActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <style name="CustomTextColor" parent="Base.TextAppearance.AppCompat.Title">
+        <item name="android:textColor">@color/colorAccent</item>
+    </style>
+
+</resources>

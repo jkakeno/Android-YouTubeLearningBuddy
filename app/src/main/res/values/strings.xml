@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">YoutubeLearningBuddy</string>
+    <string name="topic_message">Use task bar to enter topics</string>
+    <string name="video_message">Use task bar to search for videos</string>
+    <string name="no_comments">No Comments</string>
+
+</resources>
