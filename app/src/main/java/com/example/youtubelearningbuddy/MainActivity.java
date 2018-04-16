@@ -1,15 +1,12 @@
 package com.example.youtubelearningbuddy;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.youtubelearningbuddy.Model.Topic;
 import com.example.youtubelearningbuddy.Model.Video;
-import com.example.youtubelearningbuddy.UI.QuickPlayActivity;
 import com.example.youtubelearningbuddy.UI.TopicDetailFragment;
 import com.example.youtubelearningbuddy.UI.TopicSelectFragment;
 import com.example.youtubelearningbuddy.UI.VideoDetailFragment;
@@ -18,12 +15,14 @@ import com.example.youtubelearningbuddy.UI.ViewPagerFragment;
 /*This class is the main activity which has interaction feed back from the fragments and adapters in this app.
 * It controls the display and removal of fragments for the app.
 *
+* This app utilizes the Rx Java model in TopicList, TopicListFragment, VideoList and VideoSearchFragment.
+*
 * This app is a youtube play list maker.
 * User can search for videos, create topics and save the videos to a desirable topic.
 *
 * Note: Youtube app needs to be installed in the emulator or phone to play videos.*/
 
-public class MainActivity extends AppCompatActivity implements InteractionListener {
+public class MainActivity extends AppCompatActivity implements InteractionListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     Topic topic;
@@ -76,18 +75,6 @@ public class MainActivity extends AppCompatActivity implements InteractionListen
     }
 
     @Override
-    public void onPlayVideoInteraction(Video video) {
-        Log.d(TAG, "Play video: "+ video.getId());
-
-        /*https://github.com/codepath/android_guides/wiki/Streaming-Youtube-Videos-with-YouTubePlayerView
-        * https://developers.google.com/youtube/android/player/reference/com/google/android/youtube/player/YouTubePlayer#Public_Methods
-        * */
-        Intent intent = new Intent(this, QuickPlayActivity.class);
-        intent.putExtra("videoId", video.getId());
-        startActivity(intent);
-    }
-
-    @Override
     public void onTopicSelectFragmentInteraction(Topic topic) {
         Log.d(TAG,"Save video: " + video.getTitle() + " to Topic: " + topic.getTopic());
 
@@ -99,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements InteractionListen
     public void confirmButtonInteraction(boolean confirmed) {
         Log.d(TAG,"Confirmed btn clicked: " + String.valueOf(confirmed));
 
-        if(topic!=null) {
         /*Add the video selected to the topic.*/
             topic.addVideo(video);
 
@@ -111,10 +97,6 @@ public class MainActivity extends AppCompatActivity implements InteractionListen
 
         /*Set topic back to null.*/
             topic = null;
-        }else{
-            Toast.makeText(this,"Select a topic",Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     @Override

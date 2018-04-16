@@ -35,6 +35,4 @@ public interface InteractionListener {
     /*TopicDetailInteraction method.*/
     void onTopicDetailInteraction(Video video, Topic topic);
 
-    /*PlayVideoInteraction method.*/
-    void onPlayVideoInteraction(Video video);
 }

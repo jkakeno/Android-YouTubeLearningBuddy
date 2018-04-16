@@ -3,6 +3,7 @@ package com.example.youtubelearningbuddy.UI;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,7 +23,7 @@ import com.example.youtubelearningbuddy.R;
 
 import java.util.ArrayList;
 
-public class TopicSelectFragment extends Fragment {
+public class TopicSelectFragment extends Fragment implements TopicSelectAdapter.itemClickListener {
 
     private static final String TAG =TopicSelectFragment.class.getSimpleName();
     private InteractionListener listener;
@@ -31,7 +32,7 @@ public class TopicSelectFragment extends Fragment {
     TopicSelectAdapter adapter;
     LinearLayoutManager layoutManager;
     DataBase db;
-
+    Button confirmBtn;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -55,19 +56,24 @@ public class TopicSelectFragment extends Fragment {
         Log.d(TAG,"onCreateView");
 
         /*Inflate the view for the fragment.*/
-        View view = inflater.inflate(R.layout.topic_list_fragment, container, false);
+        final View view = inflater.inflate(R.layout.topic_list_fragment, container, false);
 
         /*Get the topic list from the database.*/
         topicList=db.getTopicList();
 
-        /*Display confirmation button and no topics message conditionaly.*/
-        Button confirmBtn = (Button) view.findViewById(R.id.confirm);
+        /*Set fab visibility as gone since the inflated view is used in other fragment but this fragment doesn't use it.*/
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setVisibility(View.GONE);
+
+        confirmBtn = (Button) view.findViewById(R.id.confirm);
+        /*Set confirm button invisible because confirm button visibility will be controlled down below in onItemClickListener().*/
+        confirmBtn.setVisibility(View.INVISIBLE);
+
+        /*Display noTopics text only if there aren't any topic in the topic list.*/
         TextView noTopics = (TextView) view.findViewById(R.id.noTopics);
         if(topicList.size()>0) {
-            confirmBtn.setVisibility(View.VISIBLE);
-            noTopics.setVisibility(View.GONE);
+            noTopics.setVisibility(View.INVISIBLE);
         }else{
-            confirmBtn.setVisibility(View.INVISIBLE);
             noTopics.setVisibility(View.VISIBLE);
         }
 
@@ -79,14 +85,18 @@ public class TopicSelectFragment extends Fragment {
             }
         });
 
+
         /*Create the adapter.*/
-        adapter = new TopicSelectAdapter(topicList, listener);
+        adapter = new TopicSelectAdapter(getActivity(),topicList, listener);
         layoutManager = new LinearLayoutManager(getActivity());
 
         /*Create the recycler view.*/
         recyclerView = (RecyclerView) view.findViewById(R.id.topic_recycler_view);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
+
+        /*Initialize the adapter private interface.*/
+        adapter.setOnItemClickListener(this);
 
         return view;
     }
@@ -116,6 +126,25 @@ public class TopicSelectFragment extends Fragment {
         Log.d(TAG,"onDetach");
 
         listener = null;
+
+        /*Return clickedHolderPosition variable in the adapter back to initial value to reset.*/
+        adapter.clickedHolderPosition = -1;
+
+    }
+
+    /*TopicSelectAdapter.itemClickListener Implemented method.
+    * Here the fragment receives notification that a holder has been clicked in the adapter.*/
+    @Override
+    public void onItemClickListener(boolean isClicked) {
+        /*Update adapter.*/
+        adapter.updateAdapter();
+
+        /*Display confirm button only if a holder in adapter has been clicked.*/
+        if(isClicked) {
+            confirmBtn.setVisibility(View.VISIBLE);
+        }else {
+            confirmBtn.setVisibility(View.INVISIBLE);
+        }
     }
 }
 

@@ -3,6 +3,8 @@ package com.example.youtubelearningbuddy.UI;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.youtubelearningbuddy.InteractionListener;
@@ -22,7 +23,9 @@ import com.example.youtubelearningbuddy.Model.commentresponse.Item;
 import com.example.youtubelearningbuddy.R;
 import com.example.youtubelearningbuddy.Retrofit.ApiInterface;
 import com.example.youtubelearningbuddy.Retrofit.ApiUtils;
-import com.squareup.picasso.Picasso;
+import com.google.android.youtube.player.YouTubeInitializationResult;
+import com.google.android.youtube.player.YouTubePlayer;
+import com.google.android.youtube.player.YouTubePlayerSupportFragment;
 
 import java.util.List;
 
@@ -31,9 +34,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 
-public class VideoDetailFragment extends Fragment {
+public class VideoDetailFragment extends Fragment implements YouTubePlayer.OnInitializedListener{
 
     private static final String ARG = "arg";
+    private static final String TAG = VideoDetailFragment.class.getSimpleName();
     private InteractionListener listener;
     ApiInterface APIInterface;
     Video video;
@@ -64,6 +68,7 @@ public class VideoDetailFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG,"onCreate");
 
         /*Get the video stored in bundle.*/
         if (getArguments() != null) {
@@ -78,18 +83,24 @@ public class VideoDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        Log.d(TAG,"onCreateView");
         // Inflate the layout for this fragment
         final View view =inflater.inflate(R.layout.video_detail_fragment, container, false);
-        ImageView thumbnail = (ImageView) view.findViewById(R.id.videoThumbnail);
+
+        /*Create a youtube player fragment.
+        * Tutorial: http://findnerd.com/list/view/Play-Youtube-Video-in-Fragment-Using-YouTubePlayerFragment-/18708/*/
+        YouTubePlayerSupportFragment youTubePlayerSupportFragment = YouTubePlayerSupportFragment.newInstance();
+        /*Initialize the youtube player fragment.*/
+        youTubePlayerSupportFragment.initialize("AIzaSyAGKMQYpHEBWDIyZkXIcoG_cAb23wbyydY",this);
+        /*Replace the youtube player fragment with the frame layout (place holder).*/
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.player, youTubePlayerSupportFragment);
+        fragmentTransaction.commit();
+
+        /*Set other views in this fragment.*/
         TextView description = (TextView) view.findViewById(R.id.videoDescription);
         final TextView noComments = (TextView) view.findViewById(R.id.noComments);
-
-        /*Set views.*/
-        Picasso.with(getActivity())
-                .load(video.getThumbnailUrl())
-                .fit()
-                .centerCrop()
-                .into(thumbnail);
         description.setText(video.getDescription());
         noComments.setVisibility(View.INVISIBLE);
 
@@ -128,20 +139,13 @@ public class VideoDetailFragment extends Fragment {
             }
         });
 
-        /*Play video when click on thumbnail*/
-        thumbnail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listener.onPlayVideoInteraction(video);
-            }
-        });
-
         return view;
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        Log.d(TAG,"onAttached");
         /*Initialize the interface to pass data to activity.*/
         listener = (InteractionListener) context;
     }
@@ -149,6 +153,7 @@ public class VideoDetailFragment extends Fragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        Log.d(TAG,"onDetached");
         listener = null;
     }
 
@@ -169,5 +174,21 @@ public class VideoDetailFragment extends Fragment {
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    /*Override methods for YouTubePlayer.OnInitializedListener.*/
+    @Override
+    public void onInitializationSuccess(YouTubePlayer.Provider provider, YouTubePlayer youTubePlayer, boolean b) {
+        Log.d(TAG,"Initialization Succeeded!");
+        /*Disable the full screen button on the youtube player, since the app is forced to portrait mode allowing user to go full screen causes runtime error.*/
+        youTubePlayer.setShowFullscreenButton(false);
+        /*Once youtube player is initialized load and play the video.*/
+        youTubePlayer.loadVideo(video.getId());
+        youTubePlayer.play();
+    }
+
+    @Override
+    public void onInitializationFailure(YouTubePlayer.Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
+        Log.d(TAG, "Initialization Failed...");
     }
 }

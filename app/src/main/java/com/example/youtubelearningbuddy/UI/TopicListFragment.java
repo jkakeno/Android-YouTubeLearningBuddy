@@ -4,14 +4,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -52,10 +50,6 @@ public class TopicListFragment extends Fragment {
         /*Instantiate the database.*/
         db = new DataBase(getActivity());
 
-
-
-        /*Create menu item in fragment.*/
-        setHasOptionsMenu(true);
     }
 
     @Override
@@ -71,48 +65,11 @@ public class TopicListFragment extends Fragment {
         Button confirmBtn = (Button) view.findViewById(R.id.confirm);
         confirmBtn.setVisibility(View.GONE);
 
-        updateRecyclerView();
-
-        toggleMessage();
-
-        return view;
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        Log.d(TAG,"onAttach");
-
-        /*Initialize the interface to pass data to activity.*/
-        listener = (InteractionListener) context;
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        Log.d(TAG,"onDetach");
-
-        listener = null;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.d(TAG,"onCreatOptionsMenu");
-
-        /*Clear the menu from the previous fragment.*/
-        menu.clear();
-        /*Inflate the new fragment menu from resource.*/
-        inflater.inflate(R.menu.topic_menu, menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG,"onOptionsItemSelected");
-
-        switch (item.getItemId()) {
-            case R.id.add_topic:
-
+        /*Set the fab.*/
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 /*Create dialog to enter topic.*/
                 AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getActivity());
                 LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -146,12 +103,34 @@ public class TopicListFragment extends Fragment {
                 });
                 AlertDialog dialog = dialogBuilder.create();
                 dialog.show();
-                return true;
+            }
+        });
 
-            default:
-                return super.onOptionsItemSelected(item);
-        }
+        updateRecyclerView();
+
+        toggleMessage();
+
+        return view;
     }
+
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG,"onAttach");
+
+        /*Initialize the interface to pass data to activity.*/
+        listener = (InteractionListener) context;
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach");
+
+        listener = null;
+    }
+
 
     private void updateRecyclerView() {
         /*Create a topic list.*/
